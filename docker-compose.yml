@@ -41,7 +41,7 @@ services:
       - cluster.initial_master_nodes=elasticsearch-one,elasticsearch-two
       - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-      - opendistro_security.ssl.http.enabled=false
+      - opendistro_security.ssl.http.enabled=true
     ulimits:
       memlock:
         soft: -1
@@ -55,7 +55,7 @@ services:
       - 9200:9200
       - 9600:9600
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://0.0.0.0:9200"]
+      test: ["CMD", "curl", "-f", "https://0.0.0.0:9200"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -73,7 +73,7 @@ services:
       - cluster.initial_master_nodes=elasticsearch-one,elasticsearch-two
       - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-      - opendistro_security.ssl.http.enabled=false
+      - opendistro_security.ssl.http.enabled=true
     ulimits:
       memlock:
         soft: -1
@@ -83,11 +83,13 @@ services:
         hard: 65536
     volumes:
       - elasticsearch_two_data:/usr/share/elasticsearch/data
+      - ./certificates/elasticsearch/:/usr/share/elasticsearch/config/ssl/nodes/
+      - ./certificates/root/:/usr/share/elasticsearch/config/ssl/root/
       # - ./elasticsearch/config/kibana.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
     networks:
       - logstash_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://0.0.0.0:9200"]
+      test: ["CMD", "curl", "-f", "https://0.0.0.0:9200"]
       interval: 30s
       timeout: 10s
       retries: 5
