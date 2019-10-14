@@ -41,10 +41,9 @@ be left blank.
 Country Name (2 letter code) [AU]:RO
 State or Province Name (full name) [Some-State]:Cluj
 Locality Name (eg, city) []:Cluj-Napoca
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:Elasticsearch-Cluster
-Organizational Unit Name (eg, section) []:Elasticsearch-Cluster-Prod
-Common Name (e.g. server FQDN or YOUR name) []:elasticcluster.com
-Email Address []:cioclea.doru@gmail.com
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:EsCluster
+Organizational Unit Name (eg, section) []:EsClusterOu
+Common Name (e.g. server FQDN or YOUR name) []:elasticsearch*
 Please enter the following 'extra' attributes to be sent with your certificate request
 A challenge password []:@#$!S0M3P4ssw0rD^$$@
 An optional company name []:ElkDemoCompany

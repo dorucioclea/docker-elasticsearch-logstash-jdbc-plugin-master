@@ -37,9 +37,11 @@ If you enter '.', the field will be left blank.
 Country Name (2 letter code) [AU]:RO
 State or Province Name (full name) [Some-State]:Cluj
 Locality Name (eg, city) []:Cluj-Napoca
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:Elasticsearch-Cluster
-Organizational Unit Name (eg, section) []:Elasticsearch-Cluster-Prod
-Common Name (e.g. server FQDN or YOUR name) []:elasticsearchprod
-Email Address []:cioclea.doru@gmail.com
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:EsCluster
+Organizational Unit Name (eg, section) []:EsClusterOu
+Common Name (e.g. server FQDN or YOUR name) []:elasticsearch*
 ```
 
+Signature ok
+subject=/C=RO/ST=Cluj/L=Cluj-Napoca/O=EsCluster/OU=EsClusterOU/CN=elasticsearch*
+Getting CA Private Key
