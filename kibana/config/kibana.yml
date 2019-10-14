@@ -26,9 +26,9 @@ server.cors.exposedHeaders:
   ]
 server.cors.additionalExposedHeaders: ["kbn-xsrf", "kbn-version"]
 
-server.ssl.enabled: false
-# server.ssl.key: kibana.pem
-# server.ssl.certificate: kibana-key.pem
+server.ssl.enabled: true
+server.ssl.key: /usr/share/kibana/config/ssl/elasticsearch.key
+server.ssl.certificate: /usr/share/kibana/config/ssl/elasticsearch.pem
 elasticsearch.hosts:
   - ${ELASTICSEARCH_TARGET_INSTANCE_ONE}
   - ${ELASTICSEARCH_TARGET_INSTANCE_TWO}
