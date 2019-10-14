@@ -43,7 +43,7 @@ State or Province Name (full name) [Some-State]:Cluj
 Locality Name (eg, city) []:Cluj-Napoca
 Organization Name (eg, company) [Internet Widgits Pty Ltd]:Elasticsearch-Cluster
 Organizational Unit Name (eg, section) []:Elasticsearch-Cluster-Prod
-Common Name (e.g. server FQDN or YOUR name) []:elasticsearch-two.elasticcluster.com
+Common Name (e.g. server FQDN or YOUR name) []:elasticcluster.com
 Email Address []:cioclea.doru@gmail.com
 Please enter the following 'extra' attributes to be sent with your certificate request
 A challenge password []:@#$!S0M3P4ssw0rD^$$@
@@ -56,6 +56,6 @@ An optional company name []:ElkDemoCompany
 ```bash
 $ openssl x509 -req -in elasticsearch-two.csr -CA ../root/elasticsearch-rootca.pem -CAkey ../root/elasticsearch-rootkey.key -CAcreateserial -out elasticsearch-two.pem -sha256
 Signature ok
-subject=/C=RO/ST=Cluj/L=Cluj-Napoca/O=Elasticsearch-Cluster/OU=Elasticsearch-Cluster-Prod/CN=elasticsearch-two.elasticcluster.com/emailAddress=cioclea.doru@gmail.com
+subject=/C=RO/ST=Cluj/L=Cluj-Napoca/O=Elasticsearch-Cluster/OU=Elasticsearch-Cluster-Prod/CN=elasticcluster.com/emailAddress=cioclea.doru@gmail.com
 Getting CA Private Key
 ```
