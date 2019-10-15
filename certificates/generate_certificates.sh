@@ -97,3 +97,6 @@ echo ""
 echo "Verify certs CLIENT"
 openssl verify -verbose -CAfile ./root/root-ca.pem ./elasticsearch/node.pem
 echo ""
+
+echo "Elasticsearch nodes DN"
+openssl x509 -subject -nameopt RFC2253 -noout -in ./elasticsearch/node.pem

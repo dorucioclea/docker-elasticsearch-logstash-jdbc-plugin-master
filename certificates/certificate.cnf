@@ -23,6 +23,7 @@ commonName=		elasticsearch*
 
 [ req_attributes ]
 # None. Could put Challenge Passwords, don't want them, leave empty
+challengePassword=@S00P35Ch4ll3ng3P4ssw0rd#@#4
 
 subjectAltName = @alt_names
 
@@ -32,3 +33,29 @@ subjectAltName = @alt_names
 DNS.1 = elasticsearch
 DNS.2 = elasticsearch-one
 DNS.3 = elasticsearch-two
+
+# A few difference way of specifying how similar the request should look
+# For type CA, the listed attributes must be the same, and the optional
+# and supplied fields are just that :-)
+policy		= policy_match
+
+# For the CA policy
+[ policy_match ]
+countryName		= match
+stateOrProvinceName	= match
+organizationName	= match
+organizationalUnitName	= optional
+commonName		= supplied
+emailAddress		= optional
+
+# For the 'anything' policy
+# At this point in time, you must list all acceptable 'object'
+# types.
+[ policy_anything ]
+countryName		= optional
+stateOrProvinceName	= optional
+localityName		= optional
+organizationName	= optional
+organizationalUnitName	= optional
+commonName		= supplied
+emailAddress		= optional
