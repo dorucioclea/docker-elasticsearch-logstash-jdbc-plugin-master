@@ -35,13 +35,10 @@ services:
     image: elastic-oss
     build: ./elasticsearch
     environment:
-      - cluster.name=elasticsearch-cluster
       - node.name=elasticsearch-one
       - discovery.seed_hosts=elasticsearch-one,elasticsearch-two
-      - cluster.initial_master_nodes=elasticsearch-one,elasticsearch-two
       - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-      - opendistro_security.ssl.http.enabled=true
     ulimits:
       memlock:
         soft: -1
@@ -50,6 +47,19 @@ services:
         soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
         hard: 65536
     volumes:
+      - ./certificates/root/root-ca.pem:/usr/share/elasticsearch/config/root-ca.pem
+      - ./certificates/elasticsearch-one/node.pem:/usr/share/elasticsearch/config/node.pem
+      - ./certificates/elasticsearch-one/node-key.pem:/usr/share/elasticsearch/config/node-key.pem
+      - ./certificates/admin/admin.pem:/usr/share/elasticsearch/config/admin.pem
+      - ./certificates/admin/admin-key.pem:/usr/share/elasticsearch/config/admin-key.pem
+
+      - ./elasticsearch/config/demo/disable-demo-installation.sh:/usr/share/elasticsearch/plugins/opendistro_security/tools/install_demo_configuration.sh
+      - ./elasticsearch/config/opendistro/config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/config/opendistro_security/internal_users.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+      - ./elasticsearch/config/opendistro_security/roles_mapping.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
+      - ./elasticsearch/config/opendistro_security/tenants.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/tenants.yml
+      - ./elasticsearch/config/opendistro_security/roles.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
+      - ./elasticsearch/config/opendistro_security/action_groups.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/action_groups.yml
       - elasticsearch_one_data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
@@ -61,19 +71,19 @@ services:
       retries: 5
     networks:
       - logstash_network
+    extra_hosts:
+      - "elasticsearch-one:127.0.0.1"
+      - "elasticsearch-two:127.0.0.1"
 
   elasticsearch-two:
     container_name: elasticsearch-two
     image: elastic-oss
     build: ./elasticsearch
     environment:
-      - cluster.name=elasticsearch-cluster
       - node.name=elasticsearch-two
       - discovery.seed_hosts=elasticsearch-one,elasticsearch-two
-      - cluster.initial_master_nodes=elasticsearch-one,elasticsearch-two
       - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-      - opendistro_security.ssl.http.enabled=true
     ulimits:
       memlock:
         soft: -1
@@ -82,10 +92,18 @@ services:
         soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
         hard: 65536
     volumes:
+      - ./certificates/root/root-ca.pem:/usr/share/elasticsearch/config/root-ca.pem
+      - ./certificates/elasticsearch-two/node.pem:/usr/share/elasticsearch/config/node.pem
+      - ./certificates/elasticsearch-two/node-key.pem:/usr/share/elasticsearch/config/node-key.pem
+      - ./certificates/admin/admin.pem:/usr/share/elasticsearch/config/admin.pem
+      - ./certificates/admin/admin-key.pem:/usr/share/elasticsearch/config/admin-key.pem
+      - ./elasticsearch/config/opendistro/config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/config/opendistro_security/internal_users.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+      - ./elasticsearch/config/opendistro_security/roles_mapping.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
+      - ./elasticsearch/config/opendistro_security/tenants.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/tenants.yml
+      - ./elasticsearch/config/opendistro_security/roles.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
+      - ./elasticsearch/config/opendistro_security/action_groups.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/action_groups.yml
       - elasticsearch_two_data:/usr/share/elasticsearch/data
-      - ./certificates/elasticsearch/:/usr/share/elasticsearch/config/ssl/nodes/
-      - ./certificates/root/:/usr/share/elasticsearch/config/ssl/root/
-      # - ./elasticsearch/config/kibana.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
     networks:
       - logstash_network
     healthcheck:
@@ -93,6 +111,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    extra_hosts:
+      - "elasticsearch-one:127.0.0.1"
+      - "elasticsearch-two:127.0.0.1"
   kibana:
     image: kibana-oss
     build: ./kibana
