@@ -1,10 +1,41 @@
+# Elasticsearch MariaDB Kibana Logstash demo
 
-Check the cluster health @ http://kibanaserver:kibanaserver@localhost:9200/_cluster/health?pretty=true&wait_for_status=green
+Simple demo showcasing automatically ingesting indexes into ES with help from `Logstash`
 
-Check example search (in kibana): 
+The elasticsearch cluster is componse of `two` master nodes.
 
-http://localhost:5601/app/kibana#/dev_tools/console?load_from=https:%2F%2Fwww.elastic.co%2Fguide%2Fen%2Felasticsearch%2Freference%2F6.1%2Fsnippets%2F208.console&_g=()
+### Development
 
+This stack uses `docker-compose` to function. 
+
+Simply
+
+```bash
+> docker-compose up
+```
+
+to start it up.
+
+In order to stop the stack you can `CTRL+C` it.
+
+If you want to remove everything you can
+
+```bash
+> docker-compose down --rmi all
+```
+
+to get rid of all containers. Built images will, however remain.
+
+How to test
+----
+
+* You can use Kibana (accessible here: `http://localhost:5601`)
+* You can check cluster health using the `Postman` collection (`/postman/Elasticsearch-Functions.postman_collection`)
+
+You can test a search in kibana by clicking [this](http://localhost:5601/app/kibana#/dev_tools/console?load_from=https://www.elastic.co/guide/en/elasticsearch/reference/6.1/snippets/208.console&_g=()) link and load the following query:
+
+
+```javascript
 POST /_search
 {
     "query" : {
@@ -15,3 +46,12 @@ POST /_search
         }
     }
 }
+```
+
+License
+----
+
+MIT
+
+
+**Free Software, Hell Yeah!**
