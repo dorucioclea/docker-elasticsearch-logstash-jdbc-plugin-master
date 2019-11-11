@@ -19,7 +19,7 @@ stateOrProvinceName=	Cluj
 localityName=		Cluj-Napoca
 organizationName=	O
 organizationalUnitName=	SSL
-commonName=		root
+commonName=		admin
 
 [ req_attributes ]
 # None. Could put Challenge Passwords, don't want them, leave empty
@@ -30,9 +30,9 @@ subjectAltName = @alt_names
 # List of all the other DNS names that the certificate should work for.
 # alt_names is a name of my own invention
 [ alt_names ]
-DNS.1 = elasticsearch
-DNS.2 = elasticsearch-one
-DNS.3 = elasticsearch-two
+DNS.1 = localhost
+DNS.2 = elasticsearch-one.example.com
+DNS.3 = elasticsearch-two.example.com
 
 # A few difference way of specifying how similar the request should look
 # For type CA, the listed attributes must be the same, and the optional
