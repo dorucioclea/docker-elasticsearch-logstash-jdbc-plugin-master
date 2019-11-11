@@ -41,6 +41,46 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Search",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\" : {\n        \"term\": {\n          \"design_step_name\": {\n            \"value\": \"nama\"\n          }\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://admin:admin@localhost:9200/_search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"auth": {
+						"user": "admin",
+						"password": "admin"
+					},
+					"port": "9200",
+					"path": [
+						"_search"
+					]
+				},
+				"description": "Simple search call"
+			},
+			"response": []
 		}
 	],
 	"protocolProfileBehavior": {}
