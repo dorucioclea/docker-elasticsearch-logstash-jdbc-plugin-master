@@ -1,0 +1,47 @@
+{
+	"info": {
+		"_postman_id": "dda81e44-b707-4970-a5e5-6e1f269e440e",
+		"name": "Elasticsearch-Functions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Cluster health",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://kibanaserver:kibanaserver@localhost:9200/_cluster/health?pretty=true&wait_for_status=green",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"auth": {
+						"user": "kibanaserver",
+						"password": "kibanaserver"
+					},
+					"port": "9200",
+					"path": [
+						"_cluster",
+						"health"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": "true"
+						},
+						{
+							"key": "wait_for_status",
+							"value": "green"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
