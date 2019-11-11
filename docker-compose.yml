@@ -1,7 +1,8 @@
 version: '3.6'
 services:
   mariadb:
-    image: mariadb:10.4
+    image: mariadb-oss
+    build: ./mariadb
     ports: 
       - 3306:3306
     environment:
@@ -11,66 +12,188 @@ services:
       - MYSQL_PASSWORD=admin
     volumes:
       - mariadb_data:/var/lib/mysql
+      - ./mariadb/init-database.sql:/data/application/init.sql
     networks: 
       - logstash_network
   flyway:
-    image: boxfuse/flyway
-    command: -url=jdbc:mariadb://mariadb:3306/example?useSSL=false -schemas=example -user=root -password=password -driver=org.mariadb.jdbc.Driver -connectRetries=60  -cleanOnValidationError=true -baselineOnMigrate=true migrate
+    image: flyway-oss
+    build: ./flyway
     environment:
       - FLYWAY_EDITION=community
+      - MYSQL_ROOT_PASSWORD=admin
     volumes:
       - ./flyway/sql/:/flyway/sql/
+    entrypoint: ["bash", "/flyway/bin/wait-for-mariadb.sh", "mariadb", "--", "flyway"]
+    command: -url=jdbc:mariadb://mariadb:3306/example?useSSL=false -schemas=example -user=root -password=admin -driver=org.mariadb.jdbc.Driver -connectRetries=60  -cleanOnValidationError=true -baselineOnMigrate=true migrate
     networks: 
       - logstash_network
     depends_on: 
       - mariadb
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.4
-    ports:
-      - 9300:9300
-      - 9200:9200
+
+  elasticsearch-one:
+    container_name: elasticsearch-one
+    image: elastic-oss
+    build: ./search/elasticsearch
     environment:
-      - transport.host=127.0.0.1
-      - cluster.name=docker-cluster
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.name=elasticsearch-cluster
+      - node.name=elasticsearch-one
+      - discovery.seed_hosts=elasticsearch-one,elasticsearch-two
+      - cluster.initial_master_nodes=elasticsearch-one,elasticsearch-two
+      - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+      #
+      # Disable SSL
+      #
+      - opendistro_security.ssl.http.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
+        hard: 65536
     volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
+
+      #
+      # Mapping of the configuration files so we can also have control @ runtime time not only @ build time
+      #
+
+      #
+      # Map elasticsearch configuration file - OpenDistro global config file
+      # This causes issues when loaded (if ssl is disabled)
+      # - ./search/elasticsearch/config/opendistro/config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
+
+      #
+      # Map elasticsearch configuration files - OpenDistro security plugin configuration files
+      #    
+      - ./search/elasticsearch/config/opendistro_security/internal_users.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+      - ./search/elasticsearch/config/opendistro_security/roles_mapping.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
+      - ./search/elasticsearch/config/opendistro_security/tenants.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/tenants.yml
+      - ./search/elasticsearch/config/opendistro_security/roles.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
+      - ./search/elasticsearch/config/opendistro_security/action_groups.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/action_groups.yml
+
+      - elasticsearch_one_data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9600:9600
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     networks:
       - logstash_network
+
+  elasticsearch-two:
+    container_name: elasticsearch-two
+    image: elastic-oss
+    build: ./search/elasticsearch
+    environment:
+      - cluster.name=elasticsearch-cluster
+      - node.name=elasticsearch-two
+      - discovery.seed_hosts=elasticsearch-one,elasticsearch-two
+      - cluster.initial_master_nodes=elasticsearch-one,elasticsearch-two
+      - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+      #
+      # Disable SSL
+      #
+      - opendistro_security.ssl.http.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
+        hard: 65536
+    volumes:
+      #
+      # Mapping of the configuration files so we can also have control @ runtime time not only @ build time
+      #
+
+      #
+      # Map elasticsearch configuration file - OpenDistro global config file
+      # This causes issues when loaded (if ssl is disabled)
+      # - ./search/elasticsearch/config/opendistro/config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
+
+      #
+      # Map elasticsearch configuration files - OpenDistro security plugin configuration files
+      #    
+      - ./search/elasticsearch/config/opendistro_security/internal_users.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/internal_users.yml
+      - ./search/elasticsearch/config/opendistro_security/roles_mapping.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles_mapping.yml
+      - ./search/elasticsearch/config/opendistro_security/tenants.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/tenants.yml
+      - ./search/elasticsearch/config/opendistro_security/roles.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
+      - ./search/elasticsearch/config/opendistro_security/action_groups.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/action_groups.yml
+
+      - elasticsearch_two_data:/usr/share/elasticsearch/data
+    networks:
+      - logstash_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
   kibana:
-    image: docker.elastic.co/kibana/kibana:6.5.4
+    image: kibana-oss
+    build: ./search/kibana
+    environment:
+      #
+      # Disable SSL
+      #
+      - server.ssl.enabled=false
+      - ELASTICSEARCH_TARGET_INSTANCE_ONE=http://elasticsearch-one:9200
+      - ELASTICSEARCH_TARGET_INSTANCE_TWO=http://elasticsearch-two:9200
+      - ELASTICSEARCH_USERNAME=kibanaserver
+      - ELASTICSEARCH_PASSWORD=kibanaserver
+      - WAIT_COMMAND=[ $$(curl --write-out %{http_code} --silent --output /dev/null http://admin:admin@elasticsearch-one:9200/_cluster/health?pretty=true&wait_for_status=green) = 200 ]
+      - WAIT_START_CMD=/usr/local/bin/kibana-docker
+      - WAIT_SLEEP=2
+      - WAIT_LOOPS=1000
+    command: sh wait-to-start.sh
+    volumes:
+      - ./search/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
       - 5601:5601
     networks:
       - logstash_network
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://0.0.0.0:5601"]
+      retries: 6
     depends_on: 
-      - elasticsearch
+      - elasticsearch-one
+      - elasticsearch-two
   logstash:
-    build: ./logstash/
-    image: dimmaryanto93/logstash-jdbc-plugin:1.1
+    build: ./search/logstash/
+    image: logstash-oss
     environment:
       - LOGSTASH_JDBC_URL=jdbc:mariadb://mariadb:3306/example?useSSL=false
       - LOGSTASH_JDBC_DRIVER=org.mariadb.jdbc.Driver
       - LOGSTASH_JDBC_DRIVER_JAR_LOCATION=mariadb-java-client.jar
+      - LOGSTASH_ELASTICSEARCH_USER=admin
+      - LOGSTASH_ELASTICSEARCH_PASSWORD=admin
       - LOGSTASH_JDBC_USERNAME=root
-      - LOGSTASH_JDBC_PASSWORD=password
-      - LOGSTASH_ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - LOGSTASH_JDBC_PASSWORD=admin
+      - LOGSTASH_ELASTICSEARCH_HOST_ONE=elasticsearch-one:9200
+      - LOGSTASH_ELASTICSEARCH_HOST_TWO=elasticsearch-two:9200
       - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
     ports: 
-      - 9600:9600
+      - 9799:9600
       - 5044:5044
     networks:
       - logstash_network
     volumes: 
-      - ./logstash/jdbc-input-plugin.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./search/logstash/pipeline/jdbc-input-plugin.conf:/usr/share/logstash/pipeline/logstash.conf
     depends_on: 
-      - elasticsearch
+      - elasticsearch-one
+      - elasticsearch-two
       - kibana
       - flyway
       - mariadb
 volumes:
-  elasticsearch_data:
+  elasticsearch_one_data:
+  elasticsearch_two_data:
   mariadb_data:
 networks:
   logstash_network:
