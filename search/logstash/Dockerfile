@@ -24,11 +24,16 @@ RUN ${LOGSTASH_PLUGIN_PATH} install logstash-filter-mutate
 COPY ./config/logstash.yml /usr/share/logstash/config/logstash.yml
 
 #
+# Add new pipelines to this yaml file and a matching folder defining the pipeline
+#
+COPY ./config/pipelines.yml /usr/share/logstash/pipeline/pipelines.yml
+
+#
 # Copy the mariadb JDBC client
 #
 COPY ./dependencies/mariadb-java-client-2.4.4.jar /usr/share/logstash/mariadb-java-client.jar
 
 #
-# Copy the pipeline that we are executing
+# Copy pipeline folder containing multiple pipelines
 #
-COPY ./pipeline/jdbc-input-plugin.conf /usr/share/logstash/pipeline/logstash.conf
+COPY ./pipeline/ /usr/share/logstash/pipeline/
