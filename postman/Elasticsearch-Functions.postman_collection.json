@@ -43,6 +43,39 @@
 			"response": []
 		},
 		{
+			"name": "List indexes",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://admin:admin@localhost:9200/_cat/indices?v",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"auth": {
+						"user": "admin",
+						"password": "admin"
+					},
+					"port": "9200",
+					"path": [
+						"_cat",
+						"indices"
+					],
+					"query": [
+						{
+							"key": "v",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Search",
 			"request": {
 				"method": "POST",

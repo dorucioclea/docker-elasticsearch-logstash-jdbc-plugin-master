@@ -184,7 +184,9 @@ services:
     networks:
       - logstash_network
     volumes: 
-      - ./search/logstash/pipeline/jdbc-input-plugin.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./search/logstash/pipeline/:/usr/share/logstash/pipeline/
+      - ./search/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./search/logstash/config/pipelines.yml:/usr/share/logstash/pipeline/pipelines.yml
     depends_on: 
       - elasticsearch-one
       - elasticsearch-two
