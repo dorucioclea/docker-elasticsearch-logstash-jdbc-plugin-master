@@ -40,7 +40,6 @@ services:
       - discovery.seed_hosts=elasticsearch-one,elasticsearch-two
       - cluster.initial_master_nodes=elasticsearch-one,elasticsearch-two
       - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
       #
       # Disable SSL
       #
@@ -63,7 +62,6 @@ services:
       # This causes issues when loaded (if ssl is disabled)
       # - ./search/elasticsearch/config/opendistro/config.yml:/usr/share/elasticsearch/config/elasticsearch.yml
 
-
       #
       # Map elasticsearch configuration files - OpenDistro security plugin configuration files
       #    
@@ -72,7 +70,11 @@ services:
       - ./search/elasticsearch/config/opendistro_security/tenants.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/tenants.yml
       - ./search/elasticsearch/config/opendistro_security/roles.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
       - ./search/elasticsearch/config/opendistro_security/action_groups.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/action_groups.yml
+      - ./search/elasticsearch/config/jvm/jvm.options:/user/share/elasticsearch/config/jvm.options
 
+      #
+      # ES volume
+      #
       - elasticsearch_one_data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
@@ -95,7 +97,6 @@ services:
       - discovery.seed_hosts=elasticsearch-one,elasticsearch-two
       - cluster.initial_master_nodes=elasticsearch-one,elasticsearch-two
       - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
       #
       # Disable SSL
       #
@@ -126,7 +127,11 @@ services:
       - ./search/elasticsearch/config/opendistro_security/tenants.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/tenants.yml
       - ./search/elasticsearch/config/opendistro_security/roles.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/roles.yml
       - ./search/elasticsearch/config/opendistro_security/action_groups.yml:/usr/share/elasticsearch/plugins/opendistro_security/securityconfig/action_groups.yml
+      - ./search/elasticsearch/config/jvm/jvm.options:/user/share/elasticsearch/config/jvm.options
 
+      #
+      # ES volume
+      #
       - elasticsearch_two_data:/usr/share/elasticsearch/data
     networks:
       - logstash_network
@@ -177,7 +182,6 @@ services:
       - LOGSTASH_JDBC_PASSWORD=admin
       - LOGSTASH_ELASTICSEARCH_HOST_ONE=elasticsearch-one:9200
       - LOGSTASH_ELASTICSEARCH_HOST_TWO=elasticsearch-two:9200
-      - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
     ports: 
       - 9799:9600
       - 5044:5044
@@ -185,8 +189,12 @@ services:
       - logstash_network
     volumes: 
       - ./search/logstash/pipeline/:/usr/share/logstash/pipeline/
-      - ./search/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./search/logstash/config/pipelines.yml:/usr/share/logstash/pipeline/pipelines.yml
+    secrets:
+      - source: logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+      - source: logstash.jvm.options
+        target: /user/share/logstash/config/jvm.options
     depends_on: 
       - elasticsearch-one
       - elasticsearch-two
@@ -199,3 +207,8 @@ volumes:
   mariadb_data:
 networks:
   logstash_network:
+secrets: 
+  logstash.yml:
+      file: ./search/logstash/config/logstash.yml
+  logstash.jvm.options:
+      file: ./search/logstash/config/jvm.options
