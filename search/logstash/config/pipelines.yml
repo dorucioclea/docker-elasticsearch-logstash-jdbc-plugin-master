@@ -1,0 +1,15 @@
+- pipeline.id: pipeline-one
+  path.config: "/usr/share/logstash/pipeline/pipeline-one/*.conf"
+  pipeline.workers: 8
+  queue.type: persisted
+  pipeline.batch.size: 1000
+  #
+  # How long to wait in milliseconds while polling for the next event
+  # before dispatching an undersized batch to filters+outputs
+  #
+  pipeline.batch.delay: 100
+- pipeline.id: pipeline-two
+  path.config: "/usr/share/logstash/pipeline/pipeline-two/*.conf"
+  pipeline.workers: 4
+  queue.type: persisted
+  pipeline.batch.size: 1000
