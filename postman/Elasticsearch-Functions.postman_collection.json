@@ -114,6 +114,53 @@
 				"description": "Simple search call"
 			},
 			"response": []
+		},
+		{
+			"name": "Logstash - Stats/Pipelines",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9799/_node/stats/pipelines?pretty",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9799",
+					"path": [
+						"_node",
+						"stats",
+						"pipelines"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": null
+						}
+					]
+				},
+				"description": "Simple search call"
+			},
+			"response": []
 		}
 	],
 	"protocolProfileBehavior": {}
