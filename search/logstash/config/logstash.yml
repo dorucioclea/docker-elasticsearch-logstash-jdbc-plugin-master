@@ -1,9 +1,26 @@
----
 ## Default Logstash configuration from logstash-docker.
 ## from https://github.com/elastic/logstash-docker/blob/master/build/logstash/config/logstash.yml
 #
 http.host: "0.0.0.0"
-path.config: /usr/share/logstash/pipeline
+
+# ------------ Pipeline Configuration Settings --------------
+#
+# Where to fetch the pipeline configuration for the main pipeline
+#
+path.settings: /usr/share/logstash/pipeline/
+
+
+# ------------ Data path ------------------
+#
+# Which directory should be used by logstash and its plugins
+# for any persistent needs. Defaults to LOGSTASH_HOME/data
+#
+path.data: /usr/share/logstash/data/
+
+# ------------ Dead-Letter Queue Settings --------------
+# Flag to turn on dead-letter queue.
+#
+dead_letter_queue.enable: false
 
 ## Disable X-Pack
 ## see https://www.elastic.co/guide/en/x-pack/current/xpack-settings.html
